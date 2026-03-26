@@ -91,4 +91,126 @@
     <div id="admin-panel">
         <div class="admin-header">
             <h2 class="brand" style="font-size: 2rem;">S'Aurelia Control Center</h2>
-            <button onclick="closeAdmin()" style="background:none; border:1px solid red; color:red; padding:10px; cursor:pointer;">PANELİ KAPAT</button
+            <button onclick="closeAdmin()" style="background:none; border:1px solid red; color:red; padding:10px; cursor:pointer;">PANELİ KAPAT</button>
+        </div>
+        <div style="max-width: 600px; margin: 0 auto;">
+            <h3>Yeni Parfüm Ekle</h3>
+            <input type="text" id="p-name" placeholder="Parfüm Adı">
+            <input type="text" id="p-img" placeholder="Fotoğraf Linki (URL)">
+            <textarea id="p-desc" style="width:100%; height:100px; background:#111; border:1px solid var(--gold); color:white; padding:10px;" placeholder="Ürün Hikayesi/Açıklaması"></textarea>
+            <button class="gold-btn" onclick="adminAddProduct()">KOLEKSİYONA EKLE</button>
+            
+            <h3 style="margin-top:50px;">Koleksiyon Yönetimi</h3>
+            <div id="admin-inventory"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA MANAGEMENT ---
+        let products = JSON.parse(localStorage.getItem('sa_products')) || [
+            { id: 1, name: "Velvet Vanille", img: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800", desc: "Zarif vanilya notalarıyla bezenmiş lüks bir rüya." }
+        ];
+        let users = JSON.parse(localStorage.getItem('sa_users')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('sa_current')) || null;
+
+        // --- CORE FUNCTIONS ---
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+        }
+
+        function renderAll() {
+            const list = document.getElementById('product-list');
+            const inv = document.getElementById('admin-inventory');
+            list.innerHTML = ''; inv.innerHTML = '';
+
+            products.forEach(p => {
+                list.innerHTML += `
+                    <div class="card">
+                        <img src="${p.img}" alt="${p.name}">
+                        <div class="card-info">
+                            <h3 class="card-title">${p.name}</h3>
+                            <p style="font-size:0.8rem; color:#666; margin-bottom:15px;">${p.desc}</p>
+                            <button class="gold-btn" style="padding:10px; font-size:0.7rem;">Sepete Ekle</button>
+                        </div>
+                    </div>`;
+                
+                inv.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; padding:15px; border-bottom:1px solid #222; align-items:center;">
+                        <span>${p.name}</span>
+                        <button onclick="adminDelete(${p.id})" style="color:red; background:none; border:none; cursor:pointer;">Sil</button>
+                    </div>`;
+            });
+
+            if(currentUser) {
+                document.getElementById('nav-auth').classList.add('hidden');
+                document.getElementById('nav-user').classList.remove('hidden');
+                document.getElementById('user-display').innerText = currentUser.username;
+            } else {
+                document.getElementById('nav-auth').classList.remove('hidden');
+                document.getElementById('nav-user').classList.add('hidden');
+            }
+            localStorage.setItem('sa_products', JSON.stringify(products));
+        }
+
+        // --- AUTH LOGIC ---
+        function handleRegister() {
+            const u = document.getElementById('reg-user').value;
+            const p = document.getElementById('reg-pass').value;
+            if(u && p) {
+                users.push({username: u, password: p});
+                localStorage.setItem('sa_users', JSON.stringify(users));
+                alert("Üyeliğiniz oluşturuldu. Giriş yapabilirsiniz.");
+                showPage('login');
+            }
+        }
+
+        function handleLogin() {
+            const u = document.getElementById('login-user').value;
+            const p = document.getElementById('login-pass').value;
+            const user = users.find(x => x.username === u && x.password === p);
+            if(user) {
+                currentUser = user;
+                localStorage.setItem('sa_current', JSON.stringify(user));
+                renderAll();
+                showPage('home');
+            } else { alert("Hatalı bilgiler!"); }
+        }
+
+        function logout() {
+            localStorage.removeItem('sa_current');
+            location.reload();
+        }
+
+        // --- ADMIN LOGIC ---
+        function checkAdmin() {
+            const user = prompt("Admin Kullanıcı Adı:");
+            const pass = prompt("Admin Şifresi:");
+            if(user === "sudearda" && pass === "170725") {
+                document.getElementById('admin-panel').classList.add('active');
+            } else { alert("Yetkisiz Giriş!"); }
+        }
+
+        function closeAdmin() { document.getElementById('admin-panel').classList.remove('active'); }
+
+        function adminAddProduct() {
+            const n = document.getElementById('p-name').value;
+            const i = document.getElementById('p-img').value;
+            const d = document.getElementById('p-desc').value;
+            if(n && i) {
+                products.push({id: Date.now(), name: n, img: i, desc: d});
+                renderAll();
+                alert("Ürün koleksiyona eklendi.");
+            }
+        }
+
+        function adminDelete(id) {
+            products = products.filter(x => x.id !== id);
+            renderAll();
+        }
+
+        // Başlangıç
+        renderAll();
+    </script>
+</body>
+</html>
