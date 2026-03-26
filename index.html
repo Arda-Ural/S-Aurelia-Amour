@@ -1,149 +1,102 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S'Aurelia Amour | Maison de Parfum</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;600&family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --true-gold: #f5e08f; 
-            --rich-gold: #e6c15c; 
-            --gold-shadow: rgba(230, 193, 92, 0.5);
-            --black: #050505; 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    // Kullanıcı Şablonu
+    public class User {
+        public int Id { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string Role { get; set; } // "Admin" veya "User"
+    }
+
+    static List<User> Veritabani = new List<User>();
+    static User AktifKullanici = null;
+
+    static void Main(string[] args)
+    {
+        // 1. ADIM: Başlangıçta bir admin ekleyelim ki sisteme girebilelim
+        Veritabani.Add(new User { Id = 1, Username = "admin", Password = "123", Role = "Admin" });
+
+        while (true)
+        {
+            if (AktifKullanici == null) 
+            {
+                // GİRİŞ YAPILMAMIŞSA
+                Console.WriteLine("\n=== ANA MENÜ ===");
+                Console.WriteLine("1- Giriş Yap (admin/123 dene)");
+                Console.WriteLine("2- Kayıt Ol");
+                Console.Write("Seçim: ");
+                string secim = Console.ReadLine();
+
+                if (secim == "1") Giris();
+                else if (secim == "2") Kayit();
+            }
+            else if (AktifKullanici.Role == "Admin")
+            {
+                // ADMİN GİRİŞ YAPMIŞSA
+                Console.WriteLine($"\n=== ADMİN PANELİ: {AktifKullanici.Username} ===");
+                Console.WriteLine("1- Tüm Kullanıcıları Listele");
+                Console.WriteLine("2- Birine Adminlik Yetkisi Ver");
+                Console.WriteLine("3- Kullanıcı Sil");
+                Console.WriteLine("4- Çıkış Yap");
+                Console.Write("Seçim: ");
+                string secim = Console.ReadLine();
+
+                if (secim == "1") Listele();
+                else if (secim == "2") YetkiVer();
+                else if (secim == "3") Sil();
+                else if (secim == "4") AktifKullanici = null;
+            }
+            else
+            {
+                // NORMAL KULLANICI GİRİŞ YAPMIŞSA
+                Console.WriteLine($"\n=== KULLANICI PANELİ: {AktifKullanici.Username} ===");
+                Console.WriteLine("1- Bilgilerimi Gör");
+                Console.WriteLine("2- Çıkış Yap");
+                Console.Write("Seçim: ");
+                string secim = Console.ReadLine();
+
+                if (secim == "1") Console.WriteLine($"Ad: {AktifKullanici.Username}, Rol: {AktifKullanici.Role}");
+                else if (secim == "2") AktifKullanici = null;
+            }
         }
-        
-        * { box-sizing: border-box; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        body { background: var(--black); color: #fdfdfd; font-family: 'Montserrat', sans-serif; margin: 0; overflow-x: hidden; }
+    }
 
-        /* --- HIZLI AÇILIŞ EKRANI (1.5 SN) --- */
-        #intro-overlay {
-            position: fixed;
-            inset: 0;
-            background: var(--black);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            transition: 0.8s ease-in-out; /* Perde kapanma hızı */
-        }
+    static void Giris() {
+        Console.Write("Kullanıcı Adı: "); string u = Console.ReadLine();
+        Console.Write("Şifre: "); string p = Console.ReadLine();
+        var user = Veritabani.FirstOrDefault(x => x.Username == u && x.Password == p);
+        if (user != null) { AktifKullanici = user; Console.WriteLine("Giriş Başarılı!"); }
+        else Console.WriteLine("Hatalı Giriş!");
+    }
 
-        .intro-brand {
-            font-family: 'Playfair Display', serif;
-            font-style: italic;
-            font-size: clamp(2.5rem, 10vw, 5rem);
-            letter-spacing: 8px;
-            background: linear-gradient(135deg, var(--true-gold) 10%, var(--rich-gold) 50%, var(--true-gold) 90%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px var(--gold-shadow));
-            animation: introReveal 1.2s forwards ease-out;
-        }
+    static void Kayit() {
+        Console.Write("Yeni Ad: "); string u = Console.ReadLine();
+        Console.Write("Yeni Şifre: "); string p = Console.ReadLine();
+        int yeniId = Veritabani.Max(x => x.Id) + 1;
+        Veritabani.Add(new User { Id = yeniId, Username = u, Password = p, Role = "User" });
+        Console.WriteLine("Kayıt Tamam.");
+    }
 
-        @keyframes introReveal {
-            0% { opacity: 0; transform: scale(0.9); filter: blur(5px); }
-            100% { opacity: 1; transform: scale(1); filter: blur(0); }
-        }
+    static void Listele() {
+        Console.WriteLine("\n--- SİSTEMDEKİLER ---");
+        foreach (var u in Veritabani) Console.WriteLine($"ID: {u.Id} | Ad: {u.Username} | Rol: {u.Role}");
+    }
 
-        /* Intro Bittiğinde Tetiklenecek Sınıf */
-        .loaded #intro-overlay {
-            transform: translateY(-100%);
-            opacity: 0;
-            pointer-events: none;
-        }
+    static void YetkiVer() {
+        Console.Write("Admin yapılacak ID: ");
+        int id = int.Parse(Console.ReadLine());
+        var user = Veritabani.FirstOrDefault(x => x.Id == id);
+        if (user != null) { user.Role = "Admin"; Console.WriteLine("Yetki Verildi!"); }
+    }
 
-        nav { 
-            padding: 30px; 
-            text-align: center; 
-            border-bottom: 1px solid #1a1a1a; 
-            position: sticky; 
-            top: 0; 
-            background: rgba(5,5,5,0.98); 
-            z-index: 1000; 
-            backdrop-filter: blur(15px);
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        
-        .loaded nav { opacity: 1; transform: translateY(0); transition-delay: 0.6s; }
-
-        .brand {
-            font-family: 'Playfair Display', serif;
-            font-style: italic;
-            font-size: 2.8rem;
-            margin: 0;
-            cursor: pointer;
-            letter-spacing: 5px;
-            background: linear-gradient(135deg, var(--true-gold) 10%, var(--rich-gold) 50%, var(--true-gold) 90%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px var(--gold-shadow));
-        }
-
-        .nav-links { margin-top: 15px; font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: #666; }
-        .nav-links span { margin: 0 15px; cursor: pointer; }
-
-        .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; opacity: 0; }
-        .loaded .container { opacity: 1; transition: 1s; transition-delay: 0.8s; }
-
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 40px; }
-        
-        .card { background: #0c0c0c; border: 1px solid #1a1a1a; position: relative; }
-        .card:hover { border-color: var(--rich-gold); transform: translateY(-5px); }
-        
-        .img-container { width: 100%; height: 450px; overflow: hidden; background: #000; }
-        .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; }
-        
-        .card-info { padding: 30px; text-align: center; }
-        .card-title { font-family: 'Playfair Display', serif; font-style: italic; font-size: 2rem; color: var(--rich-gold); margin-bottom: 10px; }
-        .card-desc { font-size: 0.85rem; color: #aaa; line-height: 1.6; margin-bottom: 25px; white-space: pre-line; }
-
-        .gold-btn {
-            background: transparent;
-            border: 1px solid var(--true-gold);
-            color: var(--true-gold);
-            padding: 15px 30px;
-            cursor: pointer;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            width: 100%;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .gold-btn:hover { background: var(--true-gold); color: #000; }
-
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.99); z-index: 9999; padding: 20px; }
-        .modal-content { max-width: 500px; margin: 40px auto; background: #080808; padding: 40px; border: 1px solid var(--rich-gold); text-align: center; }
-        input, textarea { width: 100%; padding: 15px; margin: 10px 0; background: #111; border: 1px solid #222; color: white; }
-        .active { display: block !important; }
-        .hidden { display: none !important; }
-    </style>
-</head>
-<body>
-
-    <div id="intro-overlay">
-        <div class="intro-brand">S'Aurelia Amour</div>
-    </div>
-
-    <nav>
-        <div class="brand" onclick="location.reload()">S'Aurelia Amour</div>
-        <div class="nav-links">
-            <span onclick="location.reload()">Koleksiyon</span>
-            <span id="nav-login-btn" onclick="openModal('login')">Giriş</span>
-            <span id="nav-user-info" class="hidden">Hoş geldin, <b id="user-display" style="color:var(--true-gold)"></b> | <a onclick="logout()" style="color:#ff4444; cursor:pointer">Çıkış</a></span>
-            <span onclick="adminAccess()" style="color:var(--true-gold); padding-left:15px; border-left:1px solid #333;">Yönetim</span>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div id="product-list" class="product-grid"></div>
-    </div>
-
-    <!-- ADMIN -->
-    <div id="modal-admin" class="modal">
-        <div class="modal-content">
-            <h2 class="brand" style="font-size: 1.8rem;">Yönetim</h2>
-            <input type="text" id="p-name"
+    static void Sil() {
+        Console.Write("Silinecek ID: ");
+        int id = int.Parse(Console.ReadLine());
+        Veritabani.RemoveAll(x => x.Id == id);
+        Console.WriteLine("Silindi.");
+    }
+}
