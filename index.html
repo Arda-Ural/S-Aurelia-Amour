@@ -6,211 +6,192 @@
     <title>S'Aurelia Amour | Maison de Parfum</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;600&family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #d4af37; --black: #050505; --soft-gray: #1a1a1a; --text: #e0e0e0; }
+        :root {
+            --true-gold: #f5e08f; 
+            --rich-gold: #e6c15c; 
+            --gold-shadow: rgba(230, 193, 92, 0.5);
+            --black: #050505; 
+        }
         
-        * { box-sizing: border-box; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
-        body { background: var(--black); color: var(--text); font-family: 'Montserrat', sans-serif; margin: 0; }
+        * { box-sizing: border-box; transition: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        body { background: var(--black); color: #fdfdfd; font-family: 'Montserrat', sans-serif; margin: 0; overflow-x: hidden; }
+
+        /* --- AÇILIŞ EKRANI (INTRO) --- */
+        #intro-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--black);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: 1.2s ease-in-out;
+        }
+
+        .intro-brand {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: clamp(2.5rem, 10vw, 5rem);
+            letter-spacing: 8px;
+            background: linear-gradient(135deg, var(--true-gold) 10%, var(--rich-gold) 50%, var(--true-gold) 90%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px var(--gold-shadow));
+            opacity: 0;
+            transform: scale(0.9);
+            animation: introReveal 2.5s forwards ease-out;
+        }
+
+        @keyframes introReveal {
+            0% { opacity: 0; transform: scale(0.85) translateY(20px); filter: blur(10px); }
+            50% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Intro bittiğinde içeriğin gelmesi */
+        .loaded #intro-overlay {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* --- ANA TASARIM --- */
+        nav { 
+            padding: 40px; 
+            text-align: center; 
+            border-bottom: 1px solid #1a1a1a; 
+            position: sticky; 
+            top: 0; 
+            background: rgba(5,5,5,0.98); 
+            z-index: 1000; 
+            backdrop-filter: blur(15px);
+            opacity: 0; /* Başta gizli */
+        }
         
-        /* --- NAVIGATION --- */
-        nav { padding: 30px; text-align: center; border-bottom: 1px solid var(--soft-gray); position: sticky; top: 0; background: rgba(5,5,5,0.9); z-index: 1000; backdrop-filter: blur(10px); }
-        .brand { font-family: 'Playfair Display', serif; font-style: italic; font-size: 3rem; color: var(--gold); margin: 0; cursor: pointer; text-shadow: 0 0 15px rgba(212, 175, 55, 0.2); }
-        .nav-links { margin-top: 15px; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; }
-        .nav-links span { margin: 0 15px; cursor: pointer; color: #888; }
-        .nav-links span:hover { color: var(--gold); }
+        .loaded nav { opacity: 1; transition-delay: 1s; }
 
-        /* --- FORMS (LOGIN/REGISTER) --- */
-        .auth-container { max-width: 400px; margin: 100px auto; padding: 40px; border: 1px solid var(--gold); background: #0c0c0c; text-align: center; display: none; }
-        input { width: 100%; padding: 15px; margin: 10px 0; background: #151515; border: 1px solid #333; color: white; border-radius: 0; }
-        input:focus { border-color: var(--gold); outline: none; }
-        .gold-btn { background: var(--gold); color: black; border: none; padding: 15px 30px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; }
-        .gold-btn:hover { background: #fff; box-shadow: 0 0 20px var(--gold); }
+        .brand {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 3.2rem;
+            margin: 0;
+            cursor: pointer;
+            letter-spacing: 5px;
+            background: linear-gradient(135deg, var(--true-gold) 10%, var(--rich-gold) 50%, var(--true-gold) 90%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px var(--gold-shadow));
+        }
 
-        /* --- PRODUCT GRID --- */
-        .main-content { max-width: 1400px; margin: 0 auto; padding: 50px 20px; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 50px; }
-        .card { background: #0c0c0c; border: 1px solid #151515; overflow: hidden; position: relative; }
-        .card:hover { border-color: var(--gold); transform: translateY(-10px); }
-        .card img { width: 100%; height: 450px; object-fit: cover; opacity: 0.8; }
-        .card:hover img { opacity: 1; transform: scale(1.05); }
-        .card-info { padding: 25px; text-align: center; }
-        .card-title { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.8rem; color: var(--gold); margin-bottom: 10px; }
-        .card-price { color: #888; letter-spacing: 2px; }
+        .nav-links { margin-top: 20px; font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; color: #666; }
+        .nav-links span { margin: 0 15px; cursor: pointer; }
+        .nav-links span:hover { color: var(--true-gold); text-shadow: 0 0 10px var(--gold-shadow); }
 
-        /* --- ADMIN PANEL --- */
-        #admin-panel { display: none; position: fixed; inset: 0; background: var(--black); z-index: 2000; padding: 50px; overflow-y: auto; }
-        .admin-header { border-bottom: 1px solid var(--gold); padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 60px 20px; opacity: 0; }
+        .loaded .container { opacity: 1; transition: 1.5s; transition-delay: 1.2s; }
+
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 50px; }
         
-        /* --- UTILS --- */
+        .card { 
+            background: #0c0c0c; 
+            border: 1px solid #1a1a1a; 
+            overflow: hidden; 
+            position: relative;
+        }
+        .card:hover { border-color: var(--rich-gold); transform: translateY(-10px); box-shadow: 0 25px 60px rgba(0,0,0,0.9); }
+        
+        .img-container { width: 100%; height: 480px; overflow: hidden; background: #000; position: relative; }
+        .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+        .card:hover img { opacity: 1; transform: scale(1.08); }
+
+        .price-tag {
+            position: absolute;
+            top: 20px; right: 20px;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid var(--rich-gold);
+            color: var(--true-gold);
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .card-info { padding: 40px; text-align: center; }
+        .card-title { font-family: 'Playfair Display', serif; font-style: italic; font-size: 2.2rem; color: var(--rich-gold); margin-bottom: 15px; }
+        .card-desc { font-size: 0.9rem; color: #aaa; line-height: 1.8; margin-bottom: 30px; font-weight: 300; min-height: 80px; white-space: pre-line; }
+
+        .gold-btn {
+            background: transparent;
+            border: 1px solid var(--true-gold);
+            color: var(--true-gold);
+            padding: 18px 35px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            width: 100%;
+            font-size: 0.8rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .gold-btn:hover { background: var(--true-gold); color: #000; box-shadow: 0 0 25px var(--gold-shadow); }
+
+        /* MODALS */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.99); z-index: 9999; padding: 40px; }
+        .modal-content { max-width: 600px; margin: 40px auto; background: #080808; padding: 50px; border: 1px solid var(--rich-gold); text-align: center; }
+        input, textarea { width: 100%; padding: 18px; margin: 10px 0; background: #111; border: 1px solid #222; color: white; font-family: inherit; }
         .active { display: block !important; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
+    <!-- AÇILIŞ EKRANI -->
+    <div id="intro-overlay">
+        <div class="intro-brand">S'Aurelia Amour</div>
+    </div>
+
     <nav>
-        <div class="brand" onclick="showPage('home')">S'Aurelia Amour</div>
+        <div class="brand" onclick="location.reload()">S'Aurelia Amour</div>
         <div class="nav-links">
-            <span onclick="showPage('home')">Koleksiyon</span>
-            <span id="nav-auth" onclick="showPage('login')">Giriş / Kayıt</span>
-            <span id="nav-user" class="hidden">Hoş geldin, <b id="user-display" style="color:var(--gold)"></b> | <a onclick="logout()" style="color:red; cursor:pointer">Çıkış</a></span>
-            <span onclick="checkAdmin()">Yönetim</span>
+            <span onclick="location.reload()">Koleksiyon</span>
+            <span id="nav-login-btn" onclick="openModal('login')">Giriş</span>
+            <span id="nav-user-info" class="hidden">Hoş geldin, <b id="user-display" style="color:var(--true-gold)"></b> | <a onclick="logout()" style="color:#ff4444; cursor:pointer">Çıkış</a></span>
+            <span onclick="adminAccess()" style="color:var(--true-gold); padding-left:25px; border-left:1px solid #333;">Yönetim</span>
         </div>
     </nav>
 
-    <div class="main-content">
-        <!-- HOME PAGE -->
-        <div id="page-home" class="page active">
-            <div style="text-align: center; margin-bottom: 60px;">
-                <h2 style="font-family: 'Playfair Display', serif; font-style: italic; font-weight: 200; font-size: 1.2rem; letter-spacing: 5px; color: var(--gold);">ETHEREAL LUXURY</h2>
-            </div>
-            <div id="product-list" class="product-grid">
-                <!-- Ürünler buraya yüklenir -->
-            </div>
-        </div>
-
-        <!-- LOGIN PAGE -->
-        <div id="page-login" class="page auth-container">
-            <h2 class="brand" style="font-size: 1.5rem;">Giriş Yap</h2>
-            <input type="text" id="login-user" placeholder="Kullanıcı Adı">
-            <input type="password" id="login-pass" placeholder="Şifre">
-            <button class="gold-btn" onclick="handleLogin()">Giriş</button>
-            <p style="font-size: 0.7rem; margin-top: 20px; color: #555;">Hesabın yok mu? <a href="#" onclick="showPage('register')" style="color:var(--gold)">Kayıt Ol</a></p>
-        </div>
-
-        <!-- REGISTER PAGE -->
-        <div id="page-register" class="page auth-container">
-            <h2 class="brand" style="font-size: 1.5rem;">Kayıt Ol</h2>
-            <input type="text" id="reg-user" placeholder="Kullanıcı Adı">
-            <input type="email" id="reg-email" placeholder="E-posta">
-            <input type="password" id="reg-pass" placeholder="Şifre">
-            <button class="gold-btn" onclick="handleRegister()">Hesap Oluştur</button>
-        </div>
+    <div class="container">
+        <div id="product-list" class="product-grid"></div>
     </div>
 
     <!-- ADMIN PANEL -->
-    <div id="admin-panel">
-        <div class="admin-header">
-            <h2 class="brand" style="font-size: 2rem;">S'Aurelia Control Center</h2>
-            <button onclick="closeAdmin()" style="background:none; border:1px solid red; color:red; padding:10px; cursor:pointer;">PANELİ KAPAT</button>
-        </div>
-        <div style="max-width: 600px; margin: 0 auto;">
-            <h3>Yeni Parfüm Ekle</h3>
+    <div id="modal-admin" class="modal">
+        <div class="modal-content">
+            <h2 class="brand" style="font-size: 2rem;">Yönetim</h2>
             <input type="text" id="p-name" placeholder="Parfüm Adı">
-            <input type="text" id="p-img" placeholder="Fotoğraf Linki (URL)">
-            <textarea id="p-desc" style="width:100%; height:100px; background:#111; border:1px solid var(--gold); color:white; padding:10px;" placeholder="Ürün Hikayesi/Açıklaması"></textarea>
-            <button class="gold-btn" onclick="adminAddProduct()">KOLEKSİYONA EKLE</button>
-            
-            <h3 style="margin-top:50px;">Koleksiyon Yönetimi</h3>
-            <div id="admin-inventory"></div>
+            <input type="text" id="p-price" placeholder="Fiyat (Örn: 2.450 TL)">
+            <input type="text" id="p-img" placeholder="Fotoğraf Linki">
+            <textarea id="p-desc" style="height:120px" placeholder="Açıklama ve Notalar..."></textarea>
+            <button class="gold-btn" onclick="addProduct()">Koleksiyona Ekle</button>
+            <div id="admin-inventory" style="margin-top:25px; text-align:left; max-height:200px; overflow-y:auto;"></div>
+            <button onclick="closeModals()" class="gold-btn" style="border-color:red; color:red; margin-top:20px;">KAPAT</button>
+        </div>
+    </div>
+
+    <!-- LOGIN PANEL -->
+    <div id="modal-login" class="modal">
+        <div class="modal-content">
+            <h2 class="brand" style="font-size: 2rem;">Giriş</h2>
+            <input type="text" id="l-user" placeholder="Kullanıcı Adı">
+            <input type="password" id="l-pass" placeholder="Şifre">
+            <button class="gold-btn" onclick="login()">Giriş Yap</button>
+            <button onclick="closeModals()" style="background:none; border:none; color:#444; margin-top:20px; cursor:pointer;">[ Kapat ]</button>
         </div>
     </div>
 
     <script>
-        // --- DATA MANAGEMENT ---
-        let products = JSON.parse(localStorage.getItem('sa_products')) || [
-            { id: 1, name: "Velvet Vanille", img: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800", desc: "Zarif vanilya notalarıyla bezenmiş lüks bir rüya." }
-        ];
-        let users = JSON.parse(localStorage.getItem('sa_users')) || [];
-        let currentUser = JSON.parse(localStorage.getItem('sa_current')) || null;
-
-        // --- CORE FUNCTIONS ---
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('page-' + pageId).classList.add('active');
-        }
-
-        function renderAll() {
-            const list = document.getElementById('product-list');
-            const inv = document.getElementById('admin-inventory');
-            list.innerHTML = ''; inv.innerHTML = '';
-
-            products.forEach(p => {
-                list.innerHTML += `
-                    <div class="card">
-                        <img src="${p.img}" alt="${p.name}">
-                        <div class="card-info">
-                            <h3 class="card-title">${p.name}</h3>
-                            <p style="font-size:0.8rem; color:#666; margin-bottom:15px;">${p.desc}</p>
-                            <button class="gold-btn" style="padding:10px; font-size:0.7rem;">Sepete Ekle</button>
-                        </div>
-                    </div>`;
-                
-                inv.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; padding:15px; border-bottom:1px solid #222; align-items:center;">
-                        <span>${p.name}</span>
-                        <button onclick="adminDelete(${p.id})" style="color:red; background:none; border:none; cursor:pointer;">Sil</button>
-                    </div>`;
-            });
-
-            if(currentUser) {
-                document.getElementById('nav-auth').classList.add('hidden');
-                document.getElementById('nav-user').classList.remove('hidden');
-                document.getElementById('user-display').innerText = currentUser.username;
-            } else {
-                document.getElementById('nav-auth').classList.remove('hidden');
-                document.getElementById('nav-user').classList.add('hidden');
-            }
-            localStorage.setItem('sa_products', JSON.stringify(products));
-        }
-
-        // --- AUTH LOGIC ---
-        function handleRegister() {
-            const u = document.getElementById('reg-user').value;
-            const p = document.getElementById('reg-pass').value;
-            if(u && p) {
-                users.push({username: u, password: p});
-                localStorage.setItem('sa_users', JSON.stringify(users));
-                alert("Üyeliğiniz oluşturuldu. Giriş yapabilirsiniz.");
-                showPage('login');
-            }
-        }
-
-        function handleLogin() {
-            const u = document.getElementById('login-user').value;
-            const p = document.getElementById('login-pass').value;
-            const user = users.find(x => x.username === u && x.password === p);
-            if(user) {
-                currentUser = user;
-                localStorage.setItem('sa_current', JSON.stringify(user));
-                renderAll();
-                showPage('home');
-            } else { alert("Hatalı bilgiler!"); }
-        }
-
-        function logout() {
-            localStorage.removeItem('sa_current');
-            location.reload();
-        }
-
-        // --- ADMIN LOGIC ---
-        function checkAdmin() {
-            const user = prompt("Admin Kullanıcı Adı:");
-            const pass = prompt("Admin Şifresi:");
-            if(user === "sudearda" && pass === "170725") {
-                document.getElementById('admin-panel').classList.add('active');
-            } else { alert("Yetkisiz Giriş!"); }
-        }
-
-        function closeAdmin() { document.getElementById('admin-panel').classList.remove('active'); }
-
-        function adminAddProduct() {
-            const n = document.getElementById('p-name').value;
-            const i = document.getElementById('p-img').value;
-            const d = document.getElementById('p-desc').value;
-            if(n && i) {
-                products.push({id: Date.now(), name: n, img: i, desc: d});
-                renderAll();
-                alert("Ürün koleksiyona eklendi.");
-            }
-        }
-
-        function adminDelete(id) {
-            products = products.filter(x => x.id !== id);
-            renderAll();
-        }
-
-        // Başlangıç
-        renderAll();
-    </script>
-</body>
-</html>
+        const WHATSAPP_NO = "905XXXXXXXXX"; // NUMARANI YAZMAYI UNUTMA!
+        
+        let products =
